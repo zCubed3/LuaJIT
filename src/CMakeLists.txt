@@ -28,12 +28,9 @@ add_custom_target(LuaJIT_DynASM
 
 # TODO: Make this compile-time, not gen-time
 # TODO: Handle cases where git isn't shipped as part of this?
-execute_process(
-        COMMAND git show -s --format=%ct
-        OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/luajit_relver.txt
-)
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/genversion
+        COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_version.cmake
         COMMAND LuaJIT_minilua "${LuaJIT_HOST_DIR}/genversion.lua"
         DEPENDS LuaJIT_minilua
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
