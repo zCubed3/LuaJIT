@@ -10,7 +10,7 @@ set_target_properties(LuaJIT_minilua PROPERTIES OUTPUT_NAME "minilua")
 #
 # Host DASC compilation
 #
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dasm
+add_custom_command(OUTPUT ${LuaJIT_HOST_DIR}/buildvm_arch.h
         COMMAND LuaJIT_minilua "${LuaJIT_DYNASM_DIR}/dynasm.lua" -LN ${LUAJIT_DASM_FLAGS} -o "${LuaJIT_HOST_DIR}/buildvm_arch.h" "${CMAKE_CURRENT_SOURCE_DIR}/${LuaJIT_DASC}"
         DEPENDS LuaJIT_minilua
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -19,7 +19,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dasm
 )
 
 add_custom_target(LuaJIT_DynASM
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dasm
+        DEPENDS ${LuaJIT_HOST_DIR}/buildvm_arch.h
 )
 
 #
@@ -29,7 +29,7 @@ add_custom_target(LuaJIT_DynASM
 # TODO: Make this compile-time, not gen-time
 # TODO: Handle cases where git isn't shipped as part of this?
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/genversion
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/luajit.h
         COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_version.cmake
         COMMAND LuaJIT_minilua "${LuaJIT_HOST_DIR}/genversion.lua"
         DEPENDS LuaJIT_minilua
@@ -39,7 +39,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/genversion
 )
 
 add_custom_target(LuaJIT_GenVersion
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/genversion
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/luajit.h
 )
 
 #
@@ -54,6 +54,8 @@ add_executable(LuaJIT_BuildVM ${LuaJIT_BuildVM_SRCS})
 target_include_directories(LuaJIT_BuildVM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${LuaJIT_DYNASM_DIR})
 
 set_target_properties(LuaJIT_BuildVM PROPERTIES OUTPUT_NAME "buildvm")
+
+add_dependencies(LuaJIT_BuildVM LuaJIT_GenVersion)
 
 #
 # buildvm
