@@ -14,3 +14,11 @@ Please point your favorite browser to:
 
  doc/luajit.html
 
+README for CMake Integration
+---------------------
+
+CMake has been integrated and tested on Windows (macOS and Linux testing / implementation soon!)
+
+This means you can now integrate LuaJIT from source, using FetchContent or add_subdirectory + gitmodule
+
+Hopefully this fork can help someone out :)
