@@ -64,4 +64,4 @@ add_subdirectory(src)
 # Alias targets
 #
 
-add_library(LuaJIT ALIAS LuaJIT::LuaJIT)
+add_library(LuaJIT::LuaJIT ALIAS LuaJIT)
