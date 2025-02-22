@@ -55,7 +55,7 @@ target_include_directories(LuaJIT_BuildVM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${
 
 set_target_properties(LuaJIT_BuildVM PROPERTIES OUTPUT_NAME "buildvm")
 
-add_dependencies(LuaJIT_BuildVM LuaJIT_GenVersion)
+add_dependencies(LuaJIT_BuildVM LuaJIT_GenVersion LuaJIT_DynASM)
 
 #
 # buildvm
