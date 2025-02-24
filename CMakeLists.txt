@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(LuaJIT C)
+project(LuaJIT C ASM)
 
 set(CMAKE_C_STANDARD 99)
 
@@ -34,6 +34,11 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8) # 64-bit target
         endif()
     endif()
 
+    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        set(LuaJIT_ARCH "arm64")
+        set(LuaJIT_DASC "vm_arm64.dasc")
+    endif()
+
     # TODO: Support everything else
 
 else()
@@ -47,7 +52,7 @@ else()
 endif()
 
 if (NOT DEFINED LuaJIT_ARCH)
-    message(FATAL_ERROR "Unknown ARCH!")
+    message(FATAL_ERROR "Unknown ARCH! System processor is ${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
 if (NOT DEFINED LuaJIT_DASC)
