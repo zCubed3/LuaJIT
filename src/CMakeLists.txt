@@ -5,7 +5,13 @@ add_executable(LuaJIT_minilua "${CMAKE_CURRENT_SOURCE_DIR}/host/minilua.c")
 
 target_compile_definitions(LuaJIT_minilua PRIVATE LUAJIT_COMPILE_DEFS)
 
-set_target_properties(LuaJIT_minilua PROPERTIES OUTPUT_NAME "minilua")
+set_target_properties(LuaJIT_minilua PROPERTIES
+        OUTPUT_NAME "minilua"
+        ARCHIVE_OUTPUT_DIRECTORY        "${CMAKE_BINARY_DIR}/luajit"
+        LIBRARY_OUTPUT_DIRECTORY        "${CMAKE_BINARY_DIR}/luajit"
+        RUNTIME_OUTPUT_DIRECTORY        "${CMAKE_BINARY_DIR}/luajit"
+        PDB_OUTPUT_DIRECTORY            "${CMAKE_BINARY_DIR}/luajit"
+        COMPILE_PDB_OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/luajit")
 
 #
 # Host DASC compilation
@@ -53,7 +59,13 @@ add_executable(LuaJIT_BuildVM ${LuaJIT_BuildVM_SRCS})
 
 target_include_directories(LuaJIT_BuildVM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${LuaJIT_DYNASM_DIR})
 
-set_target_properties(LuaJIT_BuildVM PROPERTIES OUTPUT_NAME "buildvm")
+set_target_properties(LuaJIT_BuildVM PROPERTIES
+        OUTPUT_NAME "buildvm"
+        ARCHIVE_OUTPUT_DIRECTORY        "${CMAKE_BINARY_DIR}/luajit"
+        LIBRARY_OUTPUT_DIRECTORY        "${CMAKE_BINARY_DIR}/luajit"
+        RUNTIME_OUTPUT_DIRECTORY        "${CMAKE_BINARY_DIR}/luajit"
+        PDB_OUTPUT_DIRECTORY            "${CMAKE_BINARY_DIR}/luajit"
+        COMPILE_PDB_OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/luajit")
 
 add_dependencies(LuaJIT_BuildVM LuaJIT_GenVersion LuaJIT_DynASM)
 
