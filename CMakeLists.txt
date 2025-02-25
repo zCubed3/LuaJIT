@@ -25,7 +25,8 @@ endif()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8) # 64-bit target
 
-    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" OR
+        CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
         set(LuaJIT_ARCH "x64")
         set(LuaJIT_DASC "vm_x64.dasc")
 

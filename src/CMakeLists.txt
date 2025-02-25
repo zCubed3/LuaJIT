@@ -13,6 +13,10 @@ set_target_properties(LuaJIT_minilua PROPERTIES
         PDB_OUTPUT_DIRECTORY            "${CMAKE_BINARY_DIR}/luajit"
         COMPILE_PDB_OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/luajit")
 
+if (UNIX)
+    target_link_libraries(LuaJIT_minilua PUBLIC m dl)
+endif()
+
 #
 # Host DASC compilation
 #
@@ -52,7 +56,7 @@ add_custom_target(LuaJIT_GenVersion
 # buildvm Tool
 #
 file(GLOB_RECURSE LuaJIT_BuildVM_SRCS
-    "${CMAKE_CURRENT_SOURCE_DIR}/host/buildvm*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/host/buildvm*.c"
 )
 
 add_executable(LuaJIT_BuildVM ${LuaJIT_BuildVM_SRCS})
@@ -93,8 +97,10 @@ if (WIN32)
     add_buildvm_command(MODE peobj OUTPUT lj_vm.obj)
 elseif(APPLE)
     add_buildvm_command(MODE machasm OUTPUT lj_vm.S)
-else()
+elseif(UNIX AND NOT APPLE)
     add_buildvm_command(MODE elfasm OUTPUT lj_vm.S)
+else()
+    message(FATAL "Unknown platform, not UNIX, APPLE, or WIN32!")
 endif()
 
 add_buildvm_command(MODE bcdef OUTPUT lj_bcdef.h INPUTS ${LuaJIT_ALL_LIB})
@@ -105,25 +111,25 @@ add_buildvm_command(MODE vmdef OUTPUT jit/vmdef.h INPUTS ${LuaJIT_ALL_LIB})
 add_buildvm_command(MODE folddef OUTPUT lj_folddef.h INPUTS lj_opt_fold.c)
 
 add_custom_target(LuaJIT_BuildVM_Generation
-    DEPENDS ${BuildVM_GENERATED_FILES}
+        DEPENDS ${BuildVM_GENERATED_FILES}
 )
 
 #
 # LuaJIT shared and static libraries
 #
 
-if (LuaJIT_AMAGAM)
+if (LuaJIT_AMALGAM)
     list(APPEND LuaJIT_LIB_SRCS "ljamalg.c")
 else()
     file(GLOB_RECURSE LuaJIT_LIB_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/lj_*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/lib_*.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/lj_*.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/lib_*.c"
     )
-
-    # Handles case where gen-files aren't ready yet but needed
-    list(APPEND LuaJIT_LIB_SRCS ${BuildVM_GENERATED_FILES})
-    list(REMOVE_DUPLICATES LuaJIT_LIB_SRCS)
 endif()
+
+# Handles case where gen-files aren't ready yet but needed
+list(APPEND LuaJIT_LIB_SRCS ${BuildVM_GENERATED_FILES})
+list(REMOVE_DUPLICATES LuaJIT_LIB_SRCS)
 
 if (LuaJIT_STATIC)
     add_library(LuaJIT STATIC ${LuaJIT_LIB_SRCS})
@@ -135,10 +141,19 @@ else()
     endif()
 endif()
 
+if (UNIX AND NOT APPLE) # Sorry - This is naive but honestly I cba to replicate the step atm :(
+    target_compile_definitions(LuaJIT PUBLIC "LUAJIT_UNWIND_EXTERNAL")
+endif()
+
 add_dependencies(LuaJIT LuaJIT_BuildVM_Generation)
-set_target_properties(LuaJIT PROPERTIES OUTPUT_NAME ${LuaJIT_LIB_NAME})
+set_target_properties(LuaJIT PROPERTIES OUTPUT_NAME ${LuaJIT_LIB_NAME} PREFIX "")
 
 target_include_directories(LuaJIT PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (UNIX AND NOT APPLE)
+    target_compile_options(LuaJIT PUBLIC "-fPIC")
+    target_link_libraries(LuaJIT PRIVATE "m" "dl")
+endif()
 
 #
 # LuaJIT runtime
